@@ -1,3 +1,9 @@
+# 1.8.5
+
+- Add `javelin` keyword to fallback config #344
+- Add italian translation, thanks to @mattiagre #347
+- Improve spanish and mexican translations, thanks to @TheLegendofSaram #346
+
 # 1.8.4
 
 - Fix ReplayMod Compat, thanks to Smartin-b #317 #24
