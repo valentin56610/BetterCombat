@@ -195,6 +195,7 @@ public class ServerNetwork {
                         handler.onPlayerInteractEntity(vanillaAttackPacket);
                     } else {
                         // System.out.println("HIT - B entity: " + entity.getEntityName() + " id: " + entity.getId() + " class: " + entity.getClass());
+                        // This will always execute:
                         if (true || player.squaredDistanceTo(entity) < range * BetterCombat.config.target_search_range_multiplier) {
                             if (entity instanceof ItemEntity || entity instanceof ExperienceOrbEntity || entity instanceof PersistentProjectileEntity || entity == player) {
                                 handler.disconnect(Text.translatable("multiplayer.disconnect.invalid_entity_attacked"));
