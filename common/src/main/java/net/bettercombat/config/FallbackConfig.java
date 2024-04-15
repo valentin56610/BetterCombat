@@ -60,7 +60,7 @@ public class FallbackConfig {
                         "fist|gauntlet",
                         "bettercombat:fist"),
                 new CompatibilitySpecifier(
-                        "trident|impaled",
+                        "trident|javelin|impaled",
                         "bettercombat:trident"),
                 new CompatibilitySpecifier(
                         "katana",

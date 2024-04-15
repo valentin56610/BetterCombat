@@ -1,6 +1,7 @@
 package net.bettercombat.client;
 
 import net.bettercombat.BetterCombat;
+import net.bettercombat.Platform;
 import net.bettercombat.client.animation.PlayerAttackAnimatable;
 import net.bettercombat.logic.WeaponRegistry;
 import net.bettercombat.network.Packets;
@@ -16,11 +17,13 @@ public class ClientNetwork {
             final var packet = Packets.AttackAnimation.read(buf);
             client.execute(() -> {
                 var entity = client.world.getEntityById(packet.playerId());
-                if (entity instanceof PlayerEntity) {
+                if (entity instanceof PlayerEntity player
+                        // Avoid local playback, unless replay mod is loaded
+                        && (player != client.player || Platform.isModLoaded("replaymod")) ) {
                     if (packet.animationName().equals(Packets.AttackAnimation.StopSymbol)) {
-                        ((PlayerAttackAnimatable)entity).stopAttackAnimation(packet.length());
+                        ((PlayerAttackAnimatable) entity).stopAttackAnimation(packet.length());
                     } else {
-                        ((PlayerAttackAnimatable)entity).playAttackAnimation(packet.animationName(), packet.animatedHand(), packet.length(), packet.upswing());
+                        ((PlayerAttackAnimatable) entity).playAttackAnimation(packet.animationName(), packet.animatedHand(), packet.length(), packet.upswing());
                     }
                 }
             });
@@ -36,7 +39,7 @@ public class ClientNetwork {
 
                     var soundEvent = Registries.SOUND_EVENT.get(new Identifier(packet.soundId()));
                     var configVolume = BetterCombatClient.config.weaponSwingSoundVolume;
-                    var volume = packet.volume() * ((float)Math.min(Math.max(configVolume, 0), 100) / 100F);
+                    var volume = packet.volume() * ((float) Math.min(Math.max(configVolume, 0), 100) / 100F);
                     client.world.playSound(
                             packet.x(),
                             packet.y(),

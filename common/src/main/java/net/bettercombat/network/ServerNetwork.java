@@ -13,7 +13,6 @@ import net.bettercombat.logic.knockback.ConfigurableKnockback;
 import net.bettercombat.mixin.LivingEntityAccessor;
 import net.bettercombat.utils.MathHelper;
 import net.bettercombat.utils.SoundHelper;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -29,9 +28,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.SwordItem;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -62,10 +59,19 @@ public class ServerNetwork {
                 return;
             }
             final var packet = Packets.AttackAnimation.read(buf);
+
             final var forwardBuffer = new Packets.AttackAnimation(player.getId(), packet.animatedHand(), packet.animationName(), packet.length(), packet.upswing());
+            try {
+                //send info back for Replaymod Compat
+                if (ServerPlayNetworking.canSend(player, Packets.AttackAnimation.ID)) {
+                    ServerPlayNetworking.send(player, Packets.AttackAnimation.ID, forwardBuffer.write());
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
             PlayerLookup.tracking(player).forEach(serverPlayer -> {
                 try {
-                    if (serverPlayer.getId() != player.getId() && ServerPlayNetworking.canSend(serverPlayer, Packets.AttackAnimation.ID)) {
+                    if (ServerPlayNetworking.canSend(serverPlayer, Packets.AttackAnimation.ID)) {
                         ServerPlayNetworking.send(serverPlayer, Packets.AttackAnimation.ID, forwardBuffer.write());
                     }
                 } catch (Exception e){
