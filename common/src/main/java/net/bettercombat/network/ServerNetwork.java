@@ -13,7 +13,6 @@ import net.bettercombat.logic.knockback.ConfigurableKnockback;
 import net.bettercombat.mixin.LivingEntityAccessor;
 import net.bettercombat.utils.MathHelper;
 import net.bettercombat.utils.SoundHelper;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -29,7 +28,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.SwordItem;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
@@ -41,17 +39,17 @@ import java.util.UUID;
 public class ServerNetwork {
     static final Logger LOGGER = LogUtils.getLogger();
 
-    private static PacketByteBuf configSerialized = PacketByteBufs.create();
+    private static String configSerialized = "";
 
     private static final UUID COMBO_DAMAGE_MODIFIER_ID = UUID.randomUUID();
     private static final UUID DUAL_WIELDING_MODIFIER_ID = UUID.randomUUID();
     private static final UUID SWEEPING_MODIFIER_ID = UUID.randomUUID();
 
     public static void initializeHandlers() {
-        configSerialized = Packets.ConfigSync.write(BetterCombat.config);
+        configSerialized = Packets.ConfigSync.serialize(BetterCombat.config);
         ServerPlayConnectionEvents.JOIN.register( (handler, sender, server) -> {
-            sender.sendPacket(Packets.WeaponRegistrySync.ID, WeaponRegistry.getEncodedRegistry());
-            sender.sendPacket(Packets.ConfigSync.ID, configSerialized);
+            sender.sendPacket(Packets.WeaponRegistrySync.ID, WeaponRegistry.getEncodedRegistry().write());
+            sender.sendPacket(Packets.ConfigSync.ID, (new Packets.ConfigSync(configSerialized)).write());
         });
 
         ServerPlayNetworking.registerGlobalReceiver(Packets.AttackAnimation.ID, (server, player, handler, buf, responseSender) -> {
@@ -61,11 +59,12 @@ public class ServerNetwork {
                 return;
             }
             final var packet = Packets.AttackAnimation.read(buf);
-            final var forwardBuffer = new Packets.AttackAnimation(player.getId(), packet.animatedHand(), packet.animationName(), packet.length(), packet.upswing()).write();
+
+            final var forwardBuffer = new Packets.AttackAnimation(player.getId(), packet.animatedHand(), packet.animationName(), packet.length(), packet.upswing());
             try {
                 //send info back for Replaymod Compat
                 if (ServerPlayNetworking.canSend(player, Packets.AttackAnimation.ID)) {
-                    ServerPlayNetworking.send(player, Packets.AttackAnimation.ID, forwardBuffer);
+                    ServerPlayNetworking.send(player, Packets.AttackAnimation.ID, forwardBuffer.write());
                 }
             } catch (Exception e){
                 e.printStackTrace();
@@ -73,7 +72,7 @@ public class ServerNetwork {
             PlayerLookup.tracking(player).forEach(serverPlayer -> {
                 try {
                     if (ServerPlayNetworking.canSend(serverPlayer, Packets.AttackAnimation.ID)) {
-                        ServerPlayNetworking.send(serverPlayer, Packets.AttackAnimation.ID, forwardBuffer);
+                        ServerPlayNetworking.send(serverPlayer, Packets.AttackAnimation.ID, forwardBuffer.write());
                     }
                 } catch (Exception e){
                     e.printStackTrace();

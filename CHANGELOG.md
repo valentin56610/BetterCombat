@@ -1,3 +1,9 @@
+# 1.8.5
+
+- Add `javelin` keyword to fallback config #344
+- Add italian translation, thanks to @mattiagre #347
+- Improve spanish and mexican translations, thanks to @TheLegendofSaram #346
+
 # 1.8.4
 
 - Fix ReplayMod Compat, thanks to Smartin-b #317 #24
@@ -14,6 +20,7 @@
 
 # 1.8.1
 
+- (1.20.2) Fix packet handling issues in multiplayer causing players to disconnect.
 - (Forge) fix hand swap deleting offhand item, when holding two handed items.
 - (Forge) Requires at least Forge 47.2.0
 
