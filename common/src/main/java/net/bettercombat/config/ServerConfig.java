@@ -67,6 +67,8 @@ public class ServerConfig implements ConfigData {
     @Comment("Multiplier for `attack_range`, during target lookup on both sides. " +
             "Large sized entities may be colliding with weapon hitbox, but center of entities can have bigger distance than `attack_range`")
     public float target_search_range_multiplier = 2F;
+    @Comment("Determines if the server should validate the target range. (If the target is within the range of the weapon)")
+    public boolean server_target_range_validation = false;
     @Comment("Total multiplier, (examples: +30% = 1.3, -30% = 0.7)")
     public float dual_wielding_attack_speed_multiplier = 1.2F;
     @Comment("Total multiplier, (examples: +30% = 1.3, -30% = 0.7)")

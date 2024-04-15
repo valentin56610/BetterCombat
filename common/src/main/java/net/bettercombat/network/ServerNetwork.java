@@ -165,6 +165,7 @@ public class ServerNetwork {
                 }
 
 
+                var validationRangeSquared = range * range * BetterCombat.config.target_search_range_multiplier;
                 for (int entityId: request.entityIds()) {
                     // getEntityById(entityId);
                     boolean isBossPart = false;
@@ -195,8 +196,8 @@ public class ServerNetwork {
                         handler.onPlayerInteractEntity(vanillaAttackPacket);
                     } else {
                         // System.out.println("HIT - B entity: " + entity.getEntityName() + " id: " + entity.getId() + " class: " + entity.getClass());
-                        // This will always execute:
-                        if (true || player.squaredDistanceTo(entity) < range * BetterCombat.config.target_search_range_multiplier) {
+                        if (!BetterCombat.config.server_target_range_validation
+                                || player.squaredDistanceTo(entity) <= validationRangeSquared) {
                             if (entity instanceof ItemEntity || entity instanceof ExperienceOrbEntity || entity instanceof PersistentProjectileEntity || entity == player) {
                                 handler.disconnect(Text.translatable("multiplayer.disconnect.invalid_entity_attacked"));
                                 LOGGER.warn("Player {} tried to attack an invalid entity", (Object)player.getName().getString());
