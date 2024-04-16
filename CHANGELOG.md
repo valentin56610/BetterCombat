@@ -1,8 +1,7 @@
 # 1.8.6
 
 - Port to 1.20.4, thank you to @ellet0, #332
-- Improve server side distance check, against cheats (configurable) 
-- 
+- Improve server side distance check, against cheats (configurable)
 
 # 1.8.5
 
